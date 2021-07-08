@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(L4 CXX)
 
+# Enable setting options from repository above.
+if (POLICY CMP0077)
+  cmake_policy(SET CMP0077 NEW)
+endif()
+
 option(L4_COMPILE_UNIT_TESTS "Compile Tests; Requires Boost" ON)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
