@@ -1,7 +1,7 @@
 #pragma once
 
-#include <boost/integer_traits.hpp>
 #include <cstdint>
+#include <limits>
 
 namespace L4 {
 
@@ -17,11 +17,11 @@ class EpochRefPolicy {
       : m_epochRefManager{epochRefPolicy.m_epochRefManager},
         m_epochCounter{epochRefPolicy.m_epochCounter} {
     epochRefPolicy.m_epochCounter =
-        boost::integer_traits<std::uint64_t>::const_max;
+        std::numeric_limits<std::uint64_t>::max();
   }
 
   ~EpochRefPolicy() {
-    if (m_epochCounter != boost::integer_traits<std::uint64_t>::const_max) {
+    if (m_epochCounter != std::numeric_limits<std::uint64_t>::max()) {
       m_epochRefManager.RemoveRef(m_epochCounter);
     }
   }
