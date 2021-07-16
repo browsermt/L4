@@ -5,8 +5,12 @@
 #include <string>
 
 #if defined(__GNUC__)
+#include <strings.h>
 #define _stricmp strcasecmp
 #endif
+
+namespace L4 {
+namespace Utils {
 
 namespace {
 
@@ -15,13 +19,10 @@ namespace {
 template <class T>
 inline void hash_combine(std::size_t& seed, const T& v) {
   std::hash<T> hasher;
-  seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+  seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 }
 
-}
-
-namespace L4 {
-namespace Utils {
+}  // namespace
 
 // CaseInsensitiveStdStringComparer is a STL-compatible case-insensitive ANSI
 // std::string comparer.
@@ -34,9 +35,7 @@ struct CaseInsensitiveStdStringComparer {
 // CaseInsensitiveStringComparer is a STL-compatible case-insensitive ANSI
 // string comparer.
 struct CaseInsensitiveStringComparer {
-  bool operator()(const char* const str1, const char* const str2) const {
-    return _stricmp(str1, str2) == 0;
-  }
+  bool operator()(const char* const str1, const char* const str2) const { return _stricmp(str1, str2) == 0; }
 };
 
 // CaseInsensitiveStringHasher is a STL-compatible case-insensitive ANSI
