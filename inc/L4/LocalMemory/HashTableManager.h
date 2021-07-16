@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/any.hpp>
+#include <any>
 #include <memory>
 #include <vector>
 #include "Epoch/IEpochActionManager.h"
@@ -92,7 +92,7 @@ class HashTableManager {
  private:
   Utils::StdStringKeyMap<std::size_t> m_hashTableNameToIndex;
 
-  std::vector<boost::any> m_internalHashTables;
+  std::vector<std::any> m_internalHashTables;
   std::vector<std::unique_ptr<IWritableHashTable>> m_hashTables;
 };
 
