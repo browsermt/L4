@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/optional.hpp>
+#include <optional>
 #include <cassert>
 #include <chrono>
 #include <cstdint>
@@ -17,18 +17,18 @@ struct HashTableConfig {
     using ValueSize = IReadOnlyHashTable::Value::size_type;
 
     explicit Setting(std::uint32_t numBuckets,
-                     boost::optional<std::uint32_t> numBucketsPerMutex = {},
-                     boost::optional<KeySize> fixedKeySize = {},
-                     boost::optional<ValueSize> fixedValueSize = {})
+                     std::optional<std::uint32_t> numBucketsPerMutex = {},
+                     std::optional<KeySize> fixedKeySize = {},
+                     std::optional<ValueSize> fixedValueSize = {})
         : m_numBuckets{numBuckets},
           m_numBucketsPerMutex{numBucketsPerMutex},
           m_fixedKeySize{fixedKeySize},
           m_fixedValueSize{fixedValueSize} {}
 
     std::uint32_t m_numBuckets;
-    boost::optional<std::uint32_t> m_numBucketsPerMutex;
-    boost::optional<KeySize> m_fixedKeySize;
-    boost::optional<ValueSize> m_fixedValueSize;
+    std::optional<std::uint32_t> m_numBucketsPerMutex;
+    std::optional<KeySize> m_fixedKeySize;
+    std::optional<ValueSize> m_fixedValueSize;
   };
 
   struct Cache {
@@ -48,17 +48,17 @@ struct HashTableConfig {
     using Properties = Utils::Properties;
 
     Serializer(std::shared_ptr<std::istream> stream = {},
-               boost::optional<Properties> properties = {})
+               std::optional<Properties> properties = {})
         : m_stream{stream}, m_properties{properties} {}
 
     std::shared_ptr<std::istream> m_stream;
-    boost::optional<Properties> m_properties;
+    std::optional<Properties> m_properties;
   };
 
   HashTableConfig(std::string name,
                   Setting setting,
-                  boost::optional<Cache> cache = {},
-                  boost::optional<Serializer> serializer = {})
+                  std::optional<Cache> cache = {},
+                  std::optional<Serializer> serializer = {})
       : m_name{std::move(name)},
         m_setting{std::move(setting)},
         m_cache{cache},
@@ -69,8 +69,8 @@ struct HashTableConfig {
 
   std::string m_name;
   Setting m_setting;
-  boost::optional<Cache> m_cache;
-  boost::optional<Serializer> m_serializer;
+  std::optional<Cache> m_cache;
+  std::optional<Serializer> m_serializer;
 };
 
 }  // namespace L4

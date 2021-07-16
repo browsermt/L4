@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/optional.hpp>
+#include <optional>
 #include <cstdint>
 #include <mutex>
 #include "Epoch/IEpochActionManager.h"
@@ -32,7 +32,7 @@ class ReadOnlyHashTable : public virtual IReadOnlyHashTable {
 
   explicit ReadOnlyHashTable(
       HashTable& hashTable,
-      boost::optional<RecordSerializer> recordSerializer = boost::none)
+      std::optional<RecordSerializer> recordSerializer = boost::none)
       : m_hashTable{hashTable},
         m_recordSerializer{
             recordSerializer
