@@ -4,7 +4,6 @@
 #include <atomic>
 #include <memory>
 #include <mutex>
-#include "Interprocess/Container/Vector.h"
 #include "Utils/Exception.h"
 #include "Utils/Lock.h"
 
