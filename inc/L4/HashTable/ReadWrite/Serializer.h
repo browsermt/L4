@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <iosfwd>
+#include <iostream>
 #include "Epoch/IEpochActionManager.h"
 #include "Log/PerfCounter.h"
 #include "Serialization/SerializerHelper.h"
@@ -202,7 +203,7 @@ class Deserializer {
             m_properties}
             .Deserialize(memory, stream);
       default:
-        std::stringstream err;
+        std::ostringstream err;
         err << "Unsupported version " << version << " is given.";
         throw RuntimeException(err.str());
     }
