@@ -1,8 +1,9 @@
 #pragma once
 
-#include <optional>
 #include <cstdint>
 #include <mutex>
+#include <optional>
+
 #include "Epoch/IEpochActionManager.h"
 #include "HashTable/Common/Record.h"
 #include "HashTable/Common/SharedHashTable.h"
@@ -30,15 +31,11 @@ class ReadOnlyHashTable : public virtual IReadOnlyHashTable {
 
   class Iterator;
 
-  explicit ReadOnlyHashTable(
-      HashTable& hashTable,
-      std::optional<RecordSerializer> recordSerializer = boost::none)
+  explicit ReadOnlyHashTable(HashTable& hashTable, std::optional<RecordSerializer> recordSerializer = std::nullopt)
       : m_hashTable{hashTable},
-        m_recordSerializer{
-            recordSerializer
-                ? *recordSerializer
-                : RecordSerializer{m_hashTable.m_setting.m_fixedKeySize,
-                                   m_hashTable.m_setting.m_fixedValueSize}} {}
+        m_recordSerializer{recordSerializer ? *recordSerializer
+                                            : RecordSerializer{m_hashTable.m_setting.m_fixedKeySize,
+                                                               m_hashTable.m_setting.m_fixedValueSize}} {}
 
   virtual bool Get(const Key& key, Value& value) const override {
     const auto bucketInfo = GetBucketInfo(key);
@@ -51,8 +48,7 @@ class ReadOnlyHashTable : public virtual IReadOnlyHashTable {
           // during access. Therefore, load it once and save it (it's safe to
           // store it b/c the memory will not be deleted until ref count becomes
           // 0).
-          const auto data =
-              entry->m_dataList[i].Load(std::memory_order_acquire);
+          const auto data = entry->m_dataList[i].Load(std::memory_order_acquire);
 
           if (data != nullptr) {
             const auto record = m_recordSerializer.Deserialize(*data);
@@ -98,8 +94,7 @@ class ReadOnlyHashTable : public virtual IReadOnlyHashTable {
     std::array<std::uint64_t, 2> hash;
     MurmurHash3_x64_128(key.m_data, key.m_size, 0U, hash.data());
 
-    return {static_cast<std::uint32_t>(hash[0] % m_hashTable.m_buckets.size()),
-            static_cast<std::uint8_t>(hash[1])};
+    return {static_cast<std::uint32_t>(hash[0] % m_hashTable.m_buckets.size()), static_cast<std::uint8_t>(hash[1])};
   }
 
   HashTable& m_hashTable;
@@ -112,8 +107,7 @@ class ReadOnlyHashTable : public virtual IReadOnlyHashTable {
 template <typename Allocator>
 class ReadOnlyHashTable<Allocator>::Iterator : public IIterator {
  public:
-  Iterator(const HashTable& hashTable,
-           const RecordSerializer& recordDeserializer)
+  Iterator(const HashTable& hashTable, const RecordSerializer& recordDeserializer)
       : m_hashTable{hashTable},
         m_recordSerializer{recordDeserializer},
         m_currentBucketIndex{-1},
@@ -145,9 +139,7 @@ class ReadOnlyHashTable<Allocator>::Iterator : public IIterator {
     assert(m_currentRecordIndex < HashTable::Entry::c_numDataPerEntry);
 
     while ((m_currentEntry == nullptr) ||
-           (m_currentRecord =
-                m_currentEntry->m_dataList[m_currentRecordIndex].Load()) ==
-               nullptr) {
+           (m_currentRecord = m_currentEntry->m_dataList[m_currentRecordIndex].Load()) == nullptr) {
       if (m_currentEntry == nullptr) {
         ++m_currentBucketIndex;
         m_currentRecordIndex = 0U;
@@ -188,15 +180,9 @@ class ReadOnlyHashTable<Allocator>::Iterator : public IIterator {
   Iterator& operator=(const Iterator&) = delete;
 
  private:
-  bool IsValid() const {
-    return !IsEnd() && (m_currentEntry != nullptr) &&
-           (m_currentRecord != nullptr);
-  }
+  bool IsValid() const { return !IsEnd() && (m_currentEntry != nullptr) && (m_currentRecord != nullptr); }
 
-  bool IsEnd() const {
-    return m_currentBucketIndex ==
-           static_cast<std::int64_t>(m_hashTable.m_buckets.size());
-  }
+  bool IsEnd() const { return m_currentBucketIndex == static_cast<std::int64_t>(m_hashTable.m_buckets.size()); }
 
   void MoveToNextData() {
     if (++m_currentRecordIndex >= HashTable::Entry::c_numDataPerEntry) {
@@ -225,8 +211,7 @@ class ReadOnlyHashTable<Allocator>::Iterator : public IIterator {
 // inheritance on ReadOnlyHashTable<Allocator> so that any derived class can
 // have only one ReadOnlyHashTable base class instance.
 template <typename Allocator>
-class WritableHashTable : public virtual ReadOnlyHashTable<Allocator>,
-                          public IWritableHashTable {
+class WritableHashTable : public virtual ReadOnlyHashTable<Allocator>, public IWritableHashTable {
  public:
   using Base = ReadOnlyHashTable<Allocator>;
   using HashTable = typename Base::HashTable;
@@ -234,9 +219,7 @@ class WritableHashTable : public virtual ReadOnlyHashTable<Allocator>,
   WritableHashTable(HashTable& hashTable, IEpochActionManager& epochManager)
       : Base(hashTable), m_epochManager{epochManager} {}
 
-  virtual void Add(const Key& key, const Value& value) override {
-    Add(CreateRecordBuffer(key, value));
-  }
+  virtual void Add(const Key& key, const Value& value) override { Add(CreateRecordBuffer(key, value)); }
 
   virtual bool Remove(const Key& key) override {
     const auto bucketInfo = this->GetBucketInfo(key);
@@ -251,8 +234,7 @@ class WritableHashTable : public virtual ReadOnlyHashTable<Allocator>,
     while (entry != nullptr) {
       for (std::uint8_t i = 0; i < HashTable::Entry::c_numDataPerEntry; ++i) {
         if (bucketInfo.second == entry->m_tags[i]) {
-          const auto data =
-              entry->m_dataList[i].Load(std::memory_order_relaxed);
+          const auto data = entry->m_dataList[i].Load(std::memory_order_relaxed);
 
           if (data != nullptr) {
             const auto record = this->m_recordSerializer.Deserialize(*data);
@@ -291,8 +273,7 @@ class WritableHashTable : public virtual ReadOnlyHashTable<Allocator>,
     typename HashTable::Entry* entryToUpdate = nullptr;
     std::uint8_t curDataIndex = 0U;
 
-    typename HashTable::UniqueLock lock{
-        this->m_hashTable.GetMutex(bucketInfo.first)};
+    typename HashTable::UniqueLock lock{this->m_hashTable.GetMutex(bucketInfo.first)};
 
     // Note that the following block is performed inside a critical section,
     // therefore, it is safe to do "Load"s with memory_order_relaxed.
@@ -300,8 +281,7 @@ class WritableHashTable : public virtual ReadOnlyHashTable<Allocator>,
       ++stat.m_chainIndex;
 
       for (std::uint8_t i = 0; i < HashTable::Entry::c_numDataPerEntry; ++i) {
-        const auto data =
-            curEntry->m_dataList[i].Load(std::memory_order_relaxed);
+        const auto data = curEntry->m_dataList[i].Load(std::memory_order_relaxed);
 
         if (data == nullptr) {
           if (entryToUpdate == nullptr) {
@@ -329,14 +309,11 @@ class WritableHashTable : public virtual ReadOnlyHashTable<Allocator>,
 
       // Check if this is the end of the chaining. If so, create a new entry if
       // we haven't found any entry to update along the way.
-      if (entryToUpdate == nullptr &&
-          curEntry->m_next.Load(std::memory_order_relaxed) == nullptr) {
-        curEntry->m_next.Store(
-            new (Detail::to_raw_pointer(
-                this->m_hashTable
-                    .template GetAllocator<typename HashTable::Entry>()
-                    .allocate(1U))) typename HashTable::Entry(),
-            std::memory_order_release);
+      if (entryToUpdate == nullptr && curEntry->m_next.Load(std::memory_order_relaxed) == nullptr) {
+        curEntry->m_next.Store(new (Detail::to_raw_pointer(
+                                   this->m_hashTable.template GetAllocator<typename HashTable::Entry>().allocate(1U)))
+                                   typename HashTable::Entry(),
+                               std::memory_order_release);
 
         stat.m_isNewEntryAdded = true;
       }
@@ -346,8 +323,7 @@ class WritableHashTable : public virtual ReadOnlyHashTable<Allocator>,
 
     assert(entryToUpdate != nullptr);
 
-    auto recordToDelete = UpdateRecord(*entryToUpdate, curDataIndex,
-                                       recordToAdd, bucketInfo.second);
+    auto recordToDelete = UpdateRecord(*entryToUpdate, curDataIndex, recordToAdd, bucketInfo.second);
 
     lock.unlock();
 
@@ -365,8 +341,7 @@ class WritableHashTable : public virtual ReadOnlyHashTable<Allocator>,
 
     const auto record = this->m_recordSerializer.Deserialize(*recordToDelete);
 
-    UpdatePerfDataForRemove(
-        Stat{record.m_key.m_size, record.m_value.m_size, 0U});
+    UpdatePerfDataForRemove(Stat{record.m_key.m_size, record.m_value.m_size, 0U});
 
     ReleaseRecord(recordToDelete);
   }
@@ -377,18 +352,13 @@ class WritableHashTable : public virtual ReadOnlyHashTable<Allocator>,
   class Serializer;
 
   RecordBuffer* CreateRecordBuffer(const Key& key, const Value& value) {
-    const auto bufferSize =
-        this->m_recordSerializer.CalculateBufferSize(key, value);
-    auto buffer = Detail::to_raw_pointer(
-        this->m_hashTable.template GetAllocator<std::uint8_t>().allocate(
-            bufferSize));
+    const auto bufferSize = this->m_recordSerializer.CalculateBufferSize(key, value);
+    auto buffer = Detail::to_raw_pointer(this->m_hashTable.template GetAllocator<std::uint8_t>().allocate(bufferSize));
 
     return this->m_recordSerializer.Serialize(key, value, buffer, bufferSize);
   }
 
-  RecordBuffer* UpdateRecord(typename HashTable::Entry& entry,
-                             std::uint8_t index,
-                             RecordBuffer* newRecord,
+  RecordBuffer* UpdateRecord(typename HashTable::Entry& entry, std::uint8_t index, RecordBuffer* newRecord,
                              std::uint8_t newTag) {
     // This function should be called under a lock, so calling with
     // memory_order_relaxed for Load() is safe.
@@ -408,8 +378,7 @@ class WritableHashTable : public virtual ReadOnlyHashTable<Allocator>,
 
     m_epochManager.RegisterAction([this, record]() {
       record->~RecordBuffer();
-      this->m_hashTable.template GetAllocator<RecordBuffer>().deallocate(record,
-                                                                         1U);
+      this->m_hashTable.template GetAllocator<RecordBuffer>().deallocate(record, 1U);
     });
   }
 
@@ -419,19 +388,16 @@ class WritableHashTable : public virtual ReadOnlyHashTable<Allocator>,
     if (stat.m_oldValueSize != 0U) {
       // Updating the existing record. Therefore, no change in the key size.
       perfData.Add(HashTablePerfCounter::TotalValueSize,
-                   static_cast<HashTablePerfData::TValue>(stat.m_valueSize) -
-                       stat.m_oldValueSize);
+                   static_cast<HashTablePerfData::TValue>(stat.m_valueSize) - stat.m_oldValueSize);
     } else {
       // We are adding a new data instead of replacing.
       perfData.Add(HashTablePerfCounter::TotalKeySize, stat.m_keySize);
       perfData.Add(HashTablePerfCounter::TotalValueSize, stat.m_valueSize);
-      perfData.Add(
-          HashTablePerfCounter::TotalIndexSize,
-          // Record overhead.
-          this->m_recordSerializer.CalculateRecordOverhead()
-              // Entry overhead if created.
-              + (stat.m_isNewEntryAdded ? sizeof(typename HashTable::Entry)
-                                        : 0U));
+      perfData.Add(HashTablePerfCounter::TotalIndexSize,
+                   // Record overhead.
+                   this->m_recordSerializer.CalculateRecordOverhead()
+                       // Entry overhead if created.
+                       + (stat.m_isNewEntryAdded ? sizeof(typename HashTable::Entry) : 0U));
 
       perfData.Min(HashTablePerfCounter::MinKeySize, stat.m_keySize);
       perfData.Max(HashTablePerfCounter::MaxKeySize, stat.m_keySize);
@@ -442,8 +408,7 @@ class WritableHashTable : public virtual ReadOnlyHashTable<Allocator>,
         perfData.Increment(HashTablePerfCounter::ChainingEntriesCount);
 
         if (stat.m_chainIndex > 1U) {
-          perfData.Max(HashTablePerfCounter::MaxBucketChainLength,
-                       stat.m_chainIndex);
+          perfData.Max(HashTablePerfCounter::MaxBucketChainLength, stat.m_chainIndex);
         }
       }
     }
@@ -458,8 +423,7 @@ class WritableHashTable : public virtual ReadOnlyHashTable<Allocator>,
     perfData.Decrement(HashTablePerfCounter::RecordsCount);
     perfData.Subtract(HashTablePerfCounter::TotalKeySize, stat.m_keySize);
     perfData.Subtract(HashTablePerfCounter::TotalValueSize, stat.m_valueSize);
-    perfData.Subtract(HashTablePerfCounter::TotalIndexSize,
-                      this->m_recordSerializer.CalculateRecordOverhead());
+    perfData.Subtract(HashTablePerfCounter::TotalIndexSize, this->m_recordSerializer.CalculateRecordOverhead());
   }
 
   IEpochActionManager& m_epochManager;
@@ -473,11 +437,8 @@ struct WritableHashTable<Allocator>::Stat {
   using KeySize = Key::size_type;
   using ValueSize = Value::size_type;
 
-  explicit Stat(KeySize keySize = 0U,
-                ValueSize valueSize = 0U,
-                ValueSize oldValueSize = 0U,
-                std::uint32_t chainIndex = 0U,
-                bool isNewEntryAdded = false)
+  explicit Stat(KeySize keySize = 0U, ValueSize valueSize = 0U, ValueSize oldValueSize = 0U,
+                std::uint32_t chainIndex = 0U, bool isNewEntryAdded = false)
       : m_keySize{keySize},
         m_valueSize{valueSize},
         m_oldValueSize{oldValueSize},
@@ -494,18 +455,15 @@ struct WritableHashTable<Allocator>::Stat {
 // WritableHashTable::Serializer class that implements ISerializer, which
 // provides the functionality to serialize the WritableHashTable.
 template <typename Allocator>
-class WritableHashTable<Allocator>::Serializer
-    : public IWritableHashTable::ISerializer {
+class WritableHashTable<Allocator>::Serializer : public IWritableHashTable::ISerializer {
  public:
   explicit Serializer(HashTable& hashTable) : m_hashTable{hashTable} {}
 
   Serializer(const Serializer&) = delete;
   Serializer& operator=(const Serializer&) = delete;
 
-  void Serialize(std::ostream& stream,
-                 const Utils::Properties& /* properties */) override {
-    ReadWrite::Serializer<HashTable, ReadWrite::ReadOnlyHashTable>{}.Serialize(
-        m_hashTable, stream);
+  void Serialize(std::ostream& stream, const Utils::Properties& /* properties */) override {
+    ReadWrite::Serializer<HashTable, ReadWrite::ReadOnlyHashTable>{}.Serialize(m_hashTable, stream);
   }
 
  private:
