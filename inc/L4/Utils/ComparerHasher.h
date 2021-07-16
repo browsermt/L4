@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/functional/hash.hpp>
 #include <cctype>
 #include <cstdint>
 #include <string>
@@ -8,6 +7,18 @@
 #if defined(__GNUC__)
 #define _stricmp strcasecmp
 #endif
+
+namespace {
+
+// https://stackoverflow.com/questions/4948780/magic-number-in-boosthash-combine
+// http://burtleburtle.net/bob/hash/doobs.html
+template <class T>
+inline void hash_combine(std::size_t& seed, const T& v) {
+  std::hash<T> hasher;
+  seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+}
+
+}
 
 namespace L4 {
 namespace Utils {
@@ -35,7 +46,7 @@ struct CaseInsensitiveStdStringHasher {
     std::size_t seed = 0;
 
     for (auto c : str) {
-      boost::hash_combine(seed, std::toupper(c));
+      hash_combine(seed, std::toupper(c));
     }
 
     return seed;
@@ -51,7 +62,7 @@ struct CaseInsensitiveStringHasher {
     std::size_t seed = 0;
 
     while (*str) {
-      boost::hash_combine(seed, std::toupper(*str++));
+      hash_combine(seed, std::toupper(*str++));
     }
 
     return seed;

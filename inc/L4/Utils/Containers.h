@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/functional/hash.hpp>
 #include <cstdint>
 #include <string>
 #include <unordered_map>
@@ -28,10 +27,10 @@ using StringKeyMap = std::unordered_map<const char*,
                                         Utils::CaseInsensitiveStringHasher,
                                         Utils::CaseInsensitiveStringComparer>;
 
-// IntegerKeyMap using boost::hash and std::equal_to comparer and hasher.
+// IntegerKeyMap using std::hash and std::equal_to comparer and hasher.
 template <typename TKey, typename TValue>
 using IntegerKeyMap =
-    std::unordered_map<TKey, TValue, boost::hash<TKey>, std::equal_to<TKey>>;
+    std::unordered_map<TKey, TValue, std::hash<TKey>, std::equal_to<TKey>>;
 
 }  // namespace Utils
 }  // namespace L4
