@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_CASE(EpochRefManagerTest) {
   const std::uint32_t c_epochQueueSize = 100U;
 
   using EpochQueue =
-      EpochQueue<boost::shared_lock_guard<L4::Utils::ReaderWriterLockSlim>,
+      EpochQueue<std::shared_lock<L4::Utils::ReaderWriterLockSlim>,
                  std::lock_guard<L4::Utils::ReaderWriterLockSlim>>;
 
   EpochQueue epochQueue(currentEpochCounter, c_epochQueueSize);
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(EpochCounterManagerTest) {
   const std::uint32_t c_epochQueueSize = 100U;
 
   using EpochQueue =
-      EpochQueue<boost::shared_lock_guard<L4::Utils::ReaderWriterLockSlim>,
+      EpochQueue<std::shared_lock<L4::Utils::ReaderWriterLockSlim>,
                  std::lock_guard<L4::Utils::ReaderWriterLockSlim>>;
 
   EpochQueue epochQueue(currentEpochCounter, c_epochQueueSize);
