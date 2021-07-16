@@ -9,7 +9,7 @@ endif()
 option(L4_COMPILE_UNIT_TESTS "Compile Tests; Requires Boost" ON)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-  add_compile_options(-std=c++14)
+  add_compile_options(-std=c++17)
   if(L4_COMPILE_UNIT_TESTS)
       add_definitions(-DBOOST_TEST_DYN_LINK)
   endif(L4_COMPILE_UNIT_TESTS)

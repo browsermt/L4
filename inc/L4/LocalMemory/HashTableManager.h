@@ -46,18 +46,18 @@ class HashTableManager {
         (serializerConfig && serializerConfig->m_stream != nullptr)
             ? ReadWrite::Deserializer<Memory, InternalHashTable,
                                       ReadWrite::WritableHashTable>(
-                  serializerConfig->m_properties.get_value_or(
+                  serializerConfig->m_properties.value_or(
                       HashTableConfig::Serializer::Properties()))
                   .Deserialize(memory, *(serializerConfig->m_stream))
             : memory.template MakeUnique<InternalHashTable>(
                   typename InternalHashTable::Setting{
                       config.m_setting.m_numBuckets,
                       (std::max)(
-                          config.m_setting.m_numBucketsPerMutex.get_value_or(
+                          config.m_setting.m_numBucketsPerMutex.value_or(
                               1U),
                           1U),
-                      config.m_setting.m_fixedKeySize.get_value_or(0U),
-                      config.m_setting.m_fixedValueSize.get_value_or(0U)},
+                      config.m_setting.m_fixedKeySize.value_or(0U),
+                      config.m_setting.m_fixedValueSize.value_or(0U)},
                   memory.GetAllocator());
 
     auto hashTable =
