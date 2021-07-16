@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/format.hpp>
 #include <cstdint>
 #include <iosfwd>
 #include "Epoch/IEpochActionManager.h"
@@ -203,8 +202,8 @@ class Deserializer {
             m_properties}
             .Deserialize(memory, stream);
       default:
-        boost::format err("Unsupported version '%1%' is given.");
-        err % version;
+        std::stringstream err;
+        err << "Unsupported version " << version << " is given.";
         throw RuntimeException(err.str());
     }
   }
