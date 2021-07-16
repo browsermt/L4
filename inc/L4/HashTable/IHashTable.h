@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cstring>
 #include <iosfwd>
 #include "Log/PerfCounter.h"
 #include "Utils/Properties.h"
@@ -21,7 +22,7 @@ struct IReadOnlyHashTable {
     }
 
     bool operator==(const Blob& other) const {
-      return (m_size == other.m_size) && !memcmp(m_data, other.m_data, m_size);
+      return (m_size == other.m_size) && !std::memcmp(m_data, other.m_data, m_size);
     }
 
     bool operator!=(const Blob& other) const { return !(*this == other); }
