@@ -31,10 +31,10 @@ class ReadOnlyHashTable : public virtual IReadOnlyHashTable {
 
   explicit ReadOnlyHashTable(
       HashTable& hashTable,
-      std::optional<RecordSerializer> recordSerializer = {})
+      std::optional<RecordSerializer> recordSerializer = std::nullopt)
       : m_hashTable{hashTable},
         m_recordSerializer{
-            recordSerializer
+            recordSerializer.has_value()
                 ? *recordSerializer
                 : RecordSerializer{m_hashTable.m_setting.m_fixedKeySize,
                                    m_hashTable.m_setting.m_fixedValueSize}} {}
