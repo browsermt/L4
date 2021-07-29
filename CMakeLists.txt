@@ -6,10 +6,10 @@ if (POLICY CMP0077)
   cmake_policy(SET CMP0077 NEW)
 endif()
 
-option(L4_COMPILE_UNIT_TESTS "Compile Tests; Requires Boost" ON)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-  add_compile_options(-std=c++17)
   if(L4_COMPILE_UNIT_TESTS)
       add_definitions(-DBOOST_TEST_DYN_LINK)
   endif(L4_COMPILE_UNIT_TESTS)
