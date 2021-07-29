@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <mutex>
+#include <optional>
 #include "Epoch/IEpochActionManager.h"
 #include "HashTable/Common/Record.h"
 #include "HashTable/Common/SharedHashTable.h"
