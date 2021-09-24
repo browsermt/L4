@@ -4,7 +4,13 @@
 namespace L4 {
 namespace Detail {
 
-//#include <boost/interprocess/detail/utilities.hpp>
+// #include <boost/interprocess/detail/utilities.hpp>
+// using boost::interprocess::ipcdetail::to_raw_pointer;
+
+// The following subset of functions are copied over from the above header file
+// (or further includes) and are the minimum required ones to get L4 working
+// without pulling boost sources in entirety.
+
 #define L4_MAYBE_INLINE 
 
 template<class RawPointer>
@@ -133,7 +139,6 @@ L4_MAYBE_INLINE std::size_t offset_ptr_to_offset(const volatile void *ptr, const
 
 
 
-// using boost::interprocess::ipcdetail::to_raw_pointer;
 
 }  // namespace Detail
 }  // namespace L4
