@@ -46,12 +46,12 @@ struct EpochQueue {
   // The followings (m_frontIndex and m_backIndex) are
   // accessed/updated only by the owner thread (only one thread), thus
   // they don't require any synchronization.
-  std::size_t m_frontIndex;
+  std::uint64_t m_frontIndex;
 
   // Back index represents the latest epoch counter value. Note that
   // this is accessed/updated by multiple threads, thus requires
   // synchronization.
-  std::size_t m_backIndex;
+  std::uint64_t m_backIndex;
 
   // Read/Write lock for m_backIndex.
   typename SharableLock::mutex_type m_mutexForBackIndex;
