@@ -1,8 +1,7 @@
 #pragma once
 
 #include <atomic>
-#include <boost/interprocess/offset_ptr.hpp>
-#include <boost/version.hpp>
+#include <detail/ToRawPointer.h>
 #include <cstdint>
 
 namespace L4 {
@@ -26,15 +25,14 @@ class AtomicOffsetPtr {
 
   T* Load(std::memory_order memoryOrder = std::memory_order_seq_cst) const {
     return static_cast<T*>(
-        boost::interprocess::ipcdetail::offset_ptr_to_raw_pointer(
+        L4::Detail::offset_ptr_to_raw_pointer(
             this, m_offset.load(memoryOrder)));
   }
 
   void Store(T* ptr,
              std::memory_order memoryOrder = std::memory_order_seq_cst) {
     m_offset.store(
-        boost::interprocess::ipcdetail::offset_ptr_to_offset<std::uintptr_t>(
-            ptr, this),
+        L4::Detail::offset_ptr_to_offset<std::uintptr_t>(ptr, this),
         memoryOrder);
   }
 

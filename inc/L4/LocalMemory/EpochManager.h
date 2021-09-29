@@ -1,8 +1,8 @@
 #pragma once
 
 #include <atomic>
-#include <boost/thread/shared_lock_guard.hpp>
 #include <mutex>
+#include <shared_mutex>
 #include "Epoch/Config.h"
 #include "Epoch/EpochActionManager.h"
 #include "Epoch/EpochQueue.h"
@@ -19,7 +19,7 @@ namespace LocalMemory {
 class EpochManager : public IEpochActionManager {
  public:
   using TheEpochQueue =
-      EpochQueue<boost::shared_lock_guard<Utils::ReaderWriterLockSlim>,
+      EpochQueue<std::shared_lock<Utils::ReaderWriterLockSlim>,
                  std::lock_guard<Utils::ReaderWriterLockSlim>>;
 
   using TheEpochRefManager = EpochRefManager<TheEpochQueue>;

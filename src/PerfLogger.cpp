@@ -1,6 +1,7 @@
+#include "Log/PerfCounter.h"
 #include "Log/PerfLogger.h"
-#include <boost/format.hpp>
 #include "Utils/Exception.h"
+#include <sstream>
 
 namespace L4 {
 
@@ -12,9 +13,10 @@ void PerfData::AddHashTablePerfData(const char* hashTableName,
       std::make_pair(hashTableName, HashTablesPerfData::mapped_type(perfData)));
 
   if (!result.second) {
-    boost::format err("Duplicate hash table name found: '%1%'.");
-    err % hashTableName;
-    throw RuntimeException(err.str());
+    std::stringstream stream;
+    stream << "Duplicate hash table name found: ";
+    stream << hashTableName;
+    throw RuntimeException(stream.str());
   }
 }
 

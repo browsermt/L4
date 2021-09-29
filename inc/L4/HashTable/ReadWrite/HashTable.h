@@ -1,8 +1,8 @@
 #pragma once
 
-#include <boost/optional.hpp>
 #include <cstdint>
 #include <mutex>
+#include <optional>
 #include "Epoch/IEpochActionManager.h"
 #include "HashTable/Common/Record.h"
 #include "HashTable/Common/SharedHashTable.h"
@@ -32,10 +32,10 @@ class ReadOnlyHashTable : public virtual IReadOnlyHashTable {
 
   explicit ReadOnlyHashTable(
       HashTable& hashTable,
-      boost::optional<RecordSerializer> recordSerializer = boost::none)
+      std::optional<RecordSerializer> recordSerializer = std::nullopt)
       : m_hashTable{hashTable},
         m_recordSerializer{
-            recordSerializer
+            recordSerializer.has_value()
                 ? *recordSerializer
                 : RecordSerializer{m_hashTable.m_setting.m_fixedKeySize,
                                    m_hashTable.m_setting.m_fixedValueSize}} {}

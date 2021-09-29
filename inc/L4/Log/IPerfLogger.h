@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <functional>
 #include "PerfCounter.h"
 
 namespace L4 {

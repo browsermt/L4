@@ -18,9 +18,9 @@ class SettingAdapter {
 
     to.m_numBuckets = from.m_numBuckets;
     to.m_numBucketsPerMutex =
-        (std::max)(from.m_numBucketsPerMutex.get_value_or(1U), 1U);
-    to.m_fixedKeySize = from.m_fixedKeySize.get_value_or(0U);
-    to.m_fixedValueSize = from.m_fixedValueSize.get_value_or(0U);
+        (std::max)(from.m_numBucketsPerMutex.value_or(1U), 1U);
+    to.m_fixedKeySize = from.m_fixedKeySize.value_or(0U);
+    to.m_fixedValueSize = from.m_fixedValueSize.value_or(0U);
 
     return to;
   }

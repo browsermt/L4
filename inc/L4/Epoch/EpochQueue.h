@@ -1,9 +1,9 @@
 #pragma once
 
+#include <vector>
 #include <atomic>
 #include <memory>
 #include <mutex>
-#include "Interprocess/Container/Vector.h"
 #include "Utils/Exception.h"
 #include "Utils/Lock.h"
 
@@ -38,18 +38,20 @@ struct EpochQueue {
   using SharableLock = TSharableLock;
   using ExclusiveLock = TExclusiveLock;
   using RefCount = std::atomic<std::uint32_t>;
-  using RefCounts = Interprocess::Container::
-      Vector<RefCount, typename Allocator::template rebind<RefCount>::other>;
+  // @jerinphilip: dirty-fix, browsermt/L4 hopefully does not need IPC.
+  // using RefCounts = Interprocess::Container::
+  //     Vector<RefCount, typename Allocator::template rebind<RefCount>::other>;
+  using RefCounts = std::vector<RefCount, typename Allocator::template rebind<RefCount>::other>;
 
   // The followings (m_frontIndex and m_backIndex) are
   // accessed/updated only by the owner thread (only one thread), thus
   // they don't require any synchronization.
-  std::size_t m_frontIndex;
+  std::uint64_t m_frontIndex;
 
   // Back index represents the latest epoch counter value. Note that
   // this is accessed/updated by multiple threads, thus requires
   // synchronization.
-  std::size_t m_backIndex;
+  std::uint64_t m_backIndex;
 
   // Read/Write lock for m_backIndex.
   typename SharableLock::mutex_type m_mutexForBackIndex;

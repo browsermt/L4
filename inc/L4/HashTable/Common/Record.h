@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cstring>
 #include "HashTable/IHashTable.h"
 #include "Utils/Exception.h"
 
@@ -73,14 +74,8 @@ class RecordSerializer {
 
     const auto start = SerializeSizes(buffer, key.m_size, value.m_size);
 
-#if defined(_MSC_VER)
-    memcpy_s(buffer + start, key.m_size, key.m_data, key.m_size);
-    memcpy_s(buffer + start + key.m_size, value.m_size, value.m_data,
-             value.m_size);
-#else
-    memcpy(buffer + start, key.m_data, key.m_size);
-    memcpy(buffer + start + key.m_size, value.m_data, value.m_size);
-#endif
+    std::memcpy(buffer + start, key.m_data, key.m_size);
+    std::memcpy(buffer + start + key.m_size, value.m_data, value.m_size);
     return reinterpret_cast<RecordBuffer*>(buffer);
   }
 

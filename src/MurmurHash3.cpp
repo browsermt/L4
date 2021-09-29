@@ -29,7 +29,9 @@
 
 #else   // defined(_MSC_VER)
 
-#define FORCE_INLINE __attribute__((always_inline))
+// For position independent compiles
+// https://rt.cpan.org/Public/Bug/Display.html?id=91280
+#define FORCE_INLINE inline __attribute__((always_inline))
 
 inline uint32_t rotl32(uint32_t x, int8_t r)
 {
